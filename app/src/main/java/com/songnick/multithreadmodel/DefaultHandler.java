@@ -4,7 +4,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 
-public class DefaultHandler extends HandlerThread implements Runnable,IHand {
+public class DefaultHandler extends HandlerThread implements IHand {
     private static final String TAG = "DefaultHandler";
 
     private Handler main = null;
