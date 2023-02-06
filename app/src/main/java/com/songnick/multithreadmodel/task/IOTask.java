@@ -2,17 +2,17 @@ package com.songnick.multithreadmodel.task;
 
 import android.util.Log;
 
-import com.songnick.multithreadmodel.data.UIData;
+import com.songnick.multithreadmodel.data.IOData;
 
 
 /***
  * 根据URL解析UI渲染数据
  * */
-public class IOTask implements ITask<UIData>{
+public class IOTask implements ITask<IOData>{
     private static String TAG = "IOTask";
     private String url = null;
 
-    private UIData result = null;
+    private IOData result = null;
 
     public IOTask(String url){
        this.url = url;
@@ -22,11 +22,11 @@ public class IOTask implements ITask<UIData>{
     public void run() {
         Log.i(TAG, " load url: " + url);
         //parse ui data
-        result = new UIData();
+        result = new IOData();
     }
 
     @Override
-    public UIData getResult() {
+    public IOData getResult() {
         return result;
     }
 }

@@ -5,9 +5,11 @@ import android.os.HandlerThread;
 import android.os.Message;
 import android.util.Log;
 
-import com.songnick.multithreadmodel.data.UIData;
-import com.songnick.multithreadmodel.task.CommonTask;
+import com.songnick.multithreadmodel.data.DOMData;
+import com.songnick.multithreadmodel.data.IOData;
+import com.songnick.multithreadmodel.task.JSTask;
 import com.songnick.multithreadmodel.task.IOTask;
+import com.songnick.multithreadmodel.task.ITask;
 import com.songnick.multithreadmodel.task.UITask;
 
 /***
@@ -19,14 +21,14 @@ public class WebView {
     public final static int MSG_MAIN = 0x00;
     public final static int MSG_UI = 0x01;
     public final static int MSG_IO = 0x02;
-    public final static int MSG_DEFAULT = 0x03;
+    public final static int MSG_JS = 0x03;
 
     private static final String TAG = "WebView";
 
     private HandlerThread mainHandlerThread = new HandlerThread("Main_thread");
     private IHand ioHandler = null;
-    private IHand uiHandler = null;
-    private IHand defaultHandler = null;
+    private IHand renderHandler = null;
+    private IHand jsHandler = null;
 
     private Handler mainHandler = null;
 
@@ -37,21 +39,22 @@ public class WebView {
                 if (ioHandler == null){
                     ioHandler = new IOHandler(mainHandler);
                 }
-                ioHandler.myHandler().post(new IOTask((String) message.obj));
+                Log.i(TAG, " current handler: " + ioHandler.myHandler());
+                ioHandler.myHandler().sendMessage(getTaskMessage(new IOTask((String) message.obj)));
                 break;
             case MSG_UI:
                 Log.i(TAG, "MSG_UI");
-                if(uiHandler == null){
-                    uiHandler = new UIHandler(mainHandler);
+                if(renderHandler == null){
+                    renderHandler = new RenderHandler(mainHandler);
                 }
-                uiHandler.myHandler().post(new UITask((UIData) message.obj));
+                renderHandler.myHandler().sendMessage(getTaskMessage(new UITask((DOMData) message.obj)));
                 break;
-            case MSG_DEFAULT:
+            case MSG_JS:
                 Log.i(TAG, " MSG_DEFAULT");
-                if (defaultHandler == null){
-                    defaultHandler = new DefaultHandler(mainHandler);
+                if (jsHandler == null){
+                    jsHandler = new JSHandler(mainHandler);
                 }
-                defaultHandler.myHandler().post(new CommonTask((String) message.obj));
+                jsHandler.myHandler().sendMessage(getTaskMessage(new JSTask((IOData) message.obj)));
                 break;
             case MSG_MAIN:
                 Log.i(TAG, "loadWebView Success!");
@@ -61,6 +64,13 @@ public class WebView {
         }
         return false;
     };
+
+    private  Message getTaskMessage(ITask task){
+        Message msg = new Message();
+        msg.obj = task;
+        return msg;
+    }
+
 
     public WebView(){
         mainHandlerThread.start();

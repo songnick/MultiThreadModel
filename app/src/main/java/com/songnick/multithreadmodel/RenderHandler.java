@@ -2,33 +2,36 @@ package com.songnick.multithreadmodel;
 
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Message;
 import android.util.Log;
 
-public class DefaultHandler extends HandlerThread implements IHand {
-    private static final String TAG = "DefaultHandler";
+import com.songnick.multithreadmodel.task.ITask;
+import com.songnick.multithreadmodel.task.UITask;
+
+public class RenderHandler extends HandlerThread implements IHand {
+    private static final String TAG = "UIHandler";
 
     private Handler main = null;
     private Handler myHandler = null;
     private Handler.Callback callback = message -> {
         Log.i(TAG, " handle message");
-        message.getCallback().run();
-        main.sendEmptyMessage(WebView.MSG_MAIN);
+        UITask task = (UITask) message.obj;
+        task.run();
+        Message msg = new Message();
+        msg.what = WebView.MSG_MAIN;
+        msg.obj = task.getResult();
+        main.sendMessage(msg);
         return true;
     };
 
-    public DefaultHandler(String name) {
+    public RenderHandler(String name) {
         super(name);
     }
 
-    public DefaultHandler(Handler main){
+    public RenderHandler(Handler main){
         this(TAG);
         this.main = main;
         start();
-    }
-
-    @Override
-    protected void onLooperPrepared() {
-        super.onLooperPrepared();
         myHandler = new Handler(getLooper(), callback);
     }
 

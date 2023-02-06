@@ -18,8 +18,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (webView == null){
-                    webView.loadWebView("www.10jqka.com.cn");
+                    webView = new WebView();
                 }
+                webView.loadWebView("www.10jqka.com.cn");
             }
         });
     }
