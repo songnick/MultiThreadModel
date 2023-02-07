@@ -7,14 +7,16 @@ import android.util.Log;
 
 import com.songnick.multithreadmodel.data.DOMData;
 import com.songnick.multithreadmodel.data.IOData;
+import com.songnick.multithreadmodel.multi_thread.IHand;
+import com.songnick.multithreadmodel.multi_thread.IOHandler;
+import com.songnick.multithreadmodel.multi_thread.JSHandler;
+import com.songnick.multithreadmodel.multi_thread.RenderHandler;
 import com.songnick.multithreadmodel.task.JSTask;
 import com.songnick.multithreadmodel.task.IOTask;
-import com.songnick.multithreadmodel.task.ITask;
-import com.songnick.multithreadmodel.task.UITask;
+import com.songnick.multithreadmodel.task.RenderTask;
 
 /***
  * web view 模拟包装类
- * 保持
  * */
 public class WebView {
 
@@ -39,22 +41,28 @@ public class WebView {
                 if (ioHandler == null){
                     ioHandler = new IOHandler(mainHandler);
                 }
-                Log.i(TAG, " current handler: " + ioHandler.myHandler());
-                ioHandler.myHandler().sendMessage(getTaskMessage(new IOTask((String) message.obj)));
+                if (message.obj instanceof String){
+                    ioHandler.runTask(new IOTask((String) message.obj));
+                }
+
                 break;
             case MSG_UI:
                 Log.i(TAG, "MSG_UI");
                 if(renderHandler == null){
                     renderHandler = new RenderHandler(mainHandler);
                 }
-                renderHandler.myHandler().sendMessage(getTaskMessage(new UITask((DOMData) message.obj)));
+                if (message.obj instanceof DOMData){
+                    renderHandler.runTask(new RenderTask((DOMData) message.obj));
+                }
                 break;
             case MSG_JS:
-                Log.i(TAG, " MSG_DEFAULT");
+                Log.i(TAG, " MSG_JS");
                 if (jsHandler == null){
                     jsHandler = new JSHandler(mainHandler);
                 }
-                jsHandler.myHandler().sendMessage(getTaskMessage(new JSTask((IOData) message.obj)));
+                if(message.obj instanceof IOData){
+                    jsHandler.runTask(new JSTask((IOData) message.obj));
+                }
                 break;
             case MSG_MAIN:
                 Log.i(TAG, "loadWebView Success!");
@@ -64,12 +72,6 @@ public class WebView {
         }
         return false;
     };
-
-    private  Message getTaskMessage(ITask task){
-        Message msg = new Message();
-        msg.obj = task;
-        return msg;
-    }
 
 
     public WebView(){
